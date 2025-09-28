@@ -140,19 +140,13 @@ jobs:
         echo "3. Move it to a directory in your PATH: \`mv <binary-name> ~/.local/bin/todo-cli\`" >> release_notes.md
         echo "4. Or use the install script: \`curl -sSL https://github.com/${{ github.repository }}/raw/main/install.sh | bash\`" >> release_notes.md
 
-        # リリースを作成
+        # リリースを作成（ファイルなし）
         gh release create "${tag_name}" \
           --title "Release ${tag_name}" \
-          --notes-file release_notes.md \
-          artifacts/todo-cli-linux-x86_64/todo-cli \
-          artifacts/todo-cli-linux-aarch64/todo-cli \
-          artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe \
-          artifacts/todo-cli-macos-x86_64/todo-cli \
-          artifacts/todo-cli-macos-aarch64/todo-cli
+          --notes-file release_notes.md
 
         # ファイル名を変更してアップロード
         gh release upload "${tag_name}" \
-          --clobber \
           artifacts/todo-cli-linux-x86_64/todo-cli#todo-cli-linux-x86_64 \
           artifacts/todo-cli-linux-aarch64/todo-cli#todo-cli-linux-aarch64 \
           artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe#todo-cli-windows-x86_64.exe \
