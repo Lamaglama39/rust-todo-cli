@@ -148,31 +148,17 @@ jobs:
           --title "Release ${tag_name}" \
           --notes-file release_notes.md
 
-        # ファイル名を変更してアップロード（存在するファイルのみ）
-        upload_files=()
+        # ファイル名を変更してからアップロード
+        cp "artifacts/todo-cli-linux-x86_64/todo-cli" "todo-cli-linux-x86_64"
+        cp "artifacts/todo-cli-linux-aarch64/todo-cli" "todo-cli-linux-aarch64"
+        cp "artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe" "todo-cli-windows-x86_64.exe"
+        cp "artifacts/todo-cli-macos-x86_64/todo-cli" "todo-cli-macos-x86_64"
+        cp "artifacts/todo-cli-macos-aarch64/todo-cli" "todo-cli-macos-aarch64"
 
-        if [ -f "artifacts/todo-cli-linux-x86_64/todo-cli" ]; then
-          upload_files+=("artifacts/todo-cli-linux-x86_64/todo-cli#todo-cli-linux-x86_64")
-        fi
-
-        if [ -f "artifacts/todo-cli-linux-aarch64/todo-cli" ]; then
-          upload_files+=("artifacts/todo-cli-linux-aarch64/todo-cli#todo-cli-linux-aarch64")
-        fi
-
-        if [ -f "artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe" ]; then
-          upload_files+=("artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe#todo-cli-windows-x86_64.exe")
-        fi
-
-        if [ -f "artifacts/todo-cli-macos-x86_64/todo-cli" ]; then
-          upload_files+=("artifacts/todo-cli-macos-x86_64/todo-cli#todo-cli-macos-x86_64")
-        fi
-
-        if [ -f "artifacts/todo-cli-macos-aarch64/todo-cli" ]; then
-          upload_files+=("artifacts/todo-cli-macos-aarch64/todo-cli#todo-cli-macos-aarch64")
-        fi
-
-        if [ ${#upload_files[@]} -gt 0 ]; then
-          gh release upload "${tag_name}" "${upload_files[@]}"
-        else
-          echo "No artifacts found to upload"
-        fi
+        # 一括アップロード
+        gh release upload "${tag_name}" \
+          todo-cli-linux-x86_64 \
+          todo-cli-linux-aarch64 \
+          todo-cli-windows-x86_64.exe \
+          todo-cli-macos-x86_64 \
+          todo-cli-macos-aarch64
