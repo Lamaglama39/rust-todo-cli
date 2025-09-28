@@ -3,5 +3,13 @@ name = "todo-cli"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "todo_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "todo-cli"
+path = "src/main.rs"
+
 [dependencies]
 rusqlite = { version = "0.36.0", features = ["bundled"] }
