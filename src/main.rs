@@ -1,34 +1,63 @@
+use clap::{Parser, Subcommand};
 use todo_cli::Todo;
 use rusqlite::Result;
 
-fn main() -> Result<()> {
-    let action = std::env::args().nth(1).expect("Please specify an action");
+#[derive(Parser)]
+#[command(name = "todo-cli")]
+#[command(about = "A simple command-line todo application")]
+#[command(version = "0.1.0")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
 
+#[derive(Subcommand)]
+enum Commands {
+    /// Add a new todo item
+    Add {
+        /// The task to add
+        task: String,
+    },
+    /// Mark a todo item as completed
+    Complete {
+        /// The task to complete
+        task: String,
+    },
+    /// List all todo items
+    List,
+    /// Delete a todo item
+    Delete {
+        /// The task to delete
+        task: String,
+    },
+}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
     let todo = Todo::new()?;
 
-    if action == "add" {
-        let item = std::env::args().nth(2).expect("Please specify an item");
-        println!("{:?}, {:?}", action, item);
-        todo.insert(item)?;
-        println!("todo saved");
-    } else if action == "complete" {
-        let item = std::env::args().nth(2).expect("Please specify an item");
-        println!("{:?}, {:?}", action, item);
-        if todo.complete(&item)? {
-            println!("todo saved");
-        } else {
-            println!("'{}' is not present in the list or already completed", item);
+    match cli.command {
+        Commands::Add { task } => {
+            todo.insert(task.clone())?;
+            println!("Added: '{}'", task);
         }
-    } else if action == "list" {
-        println!("Todo List:");
-        todo.print_list()?;
-    } else if action == "delete" {
-        let item = std::env::args().nth(2).expect("Please specify an item");
-        println!("{:?}, {:?}", action, item);
-        if todo.delete(&item)? {
-            println!("todo deleted");
-        } else {
-            println!("'{}' is not present in the list", item);
+        Commands::Complete { task } => {
+            if todo.complete(&task)? {
+                println!("Completed: '{}'", task);
+            } else {
+                println!("Task '{}' not found or already completed", task);
+            }
+        }
+        Commands::List => {
+            println!("Todo List:");
+            todo.print_list()?;
+        }
+        Commands::Delete { task } => {
+            if todo.delete(&task)? {
+                println!("Deleted: '{}'", task);
+            } else {
+                println!("Task '{}' not found", task);
+            }
         }
     }
 
