@@ -113,6 +113,9 @@ jobs:
       with:
         path: artifacts
 
+    - name: List artifacts
+      run: find artifacts -type f -ls
+
     - name: Create release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -145,10 +148,31 @@ jobs:
           --title "Release ${tag_name}" \
           --notes-file release_notes.md
 
-        # ファイル名を変更してアップロード
-        gh release upload "${tag_name}" \
-          artifacts/todo-cli-linux-x86_64/todo-cli#todo-cli-linux-x86_64 \
-          artifacts/todo-cli-linux-aarch64/todo-cli#todo-cli-linux-aarch64 \
-          artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe#todo-cli-windows-x86_64.exe \
-          artifacts/todo-cli-macos-x86_64/todo-cli#todo-cli-macos-x86_64 \
-          artifacts/todo-cli-macos-aarch64/todo-cli#todo-cli-macos-aarch64
+        # ファイル名を変更してアップロード（存在するファイルのみ）
+        upload_files=()
+
+        if [ -f "artifacts/todo-cli-linux-x86_64/todo-cli" ]; then
+          upload_files+=("artifacts/todo-cli-linux-x86_64/todo-cli#todo-cli-linux-x86_64")
+        fi
+
+        if [ -f "artifacts/todo-cli-linux-aarch64/todo-cli" ]; then
+          upload_files+=("artifacts/todo-cli-linux-aarch64/todo-cli#todo-cli-linux-aarch64")
+        fi
+
+        if [ -f "artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe" ]; then
+          upload_files+=("artifacts/todo-cli-windows-x86_64.exe/todo-cli.exe#todo-cli-windows-x86_64.exe")
+        fi
+
+        if [ -f "artifacts/todo-cli-macos-x86_64/todo-cli" ]; then
+          upload_files+=("artifacts/todo-cli-macos-x86_64/todo-cli#todo-cli-macos-x86_64")
+        fi
+
+        if [ -f "artifacts/todo-cli-macos-aarch64/todo-cli" ]; then
+          upload_files+=("artifacts/todo-cli-macos-aarch64/todo-cli#todo-cli-macos-aarch64")
+        fi
+
+        if [ ${#upload_files[@]} -gt 0 ]; then
+          gh release upload "${tag_name}" "${upload_files[@]}"
+        else
+          echo "No artifacts found to upload"
+        fi
