@@ -54,6 +54,13 @@ impl Todo {
         }
     }
 
+    fn delete(&mut self, key: &String) -> Option<()> {
+        match self.map.remove(key) {
+            Some(_) => Some(()),
+            None => None,
+        }
+    }
+
     fn save(self) -> Result<(), std::io::Error> {
         let mut content = String::new();
         for (k, v) in self.map {
@@ -90,6 +97,16 @@ fn main() {
     } else if action == "list" {
         println!("Todo List:");
         todo.list();
+    } else if action == "delete" {
+        let item = std::env::args().nth(2).expect("Please specify an item");
+        println!("{:?}, {:?}", action, item);
+        match todo.delete(&item) {
+            None => println!("'{}' is not present in the list", item),
+            Some(_) => match todo.save() {
+                Ok(_) => println!("todo deleted"),
+                Err(why) => println!("An error occurred: {}", why),
+            },
+        }
     }
 }
 
