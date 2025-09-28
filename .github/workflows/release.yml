@@ -48,6 +48,8 @@ jobs:
     - name: Install cross-compilation tools
       if: matrix.target == 'aarch64-unknown-linux-gnu'
       run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
         cargo install cross --git https://github.com/cross-rs/cross
 
     - name: Cache cargo registry
@@ -79,7 +81,13 @@ jobs:
 
     - name: Strip binary (Linux and macOS)
       if: matrix.os != 'windows-latest'
-      run: strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+      shell: bash
+      run: |
+        if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+          aarch64-linux-gnu-strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+        else
+          strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+        fi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
