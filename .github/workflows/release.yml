@@ -48,8 +48,7 @@ jobs:
     - name: Install cross-compilation tools
       if: matrix.target == 'aarch64-unknown-linux-gnu'
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-aarch64-linux-gnu
+        cargo install cross --git https://github.com/cross-rs/cross
 
     - name: Cache cargo registry
       uses: actions/cache@v4
@@ -70,7 +69,12 @@ jobs:
         key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Build
-      run: cargo build --release --target ${{ matrix.target }}
+      run: |
+        if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+          cross build --release --target ${{ matrix.target }}
+        else
+          cargo build --release --target ${{ matrix.target }}
+        fi
 
     - name: Strip binary (Linux and macOS)
       if: matrix.os != 'windows-latest'
